@@ -39,6 +39,7 @@ h1 {
     padding: 5px;
     margin-bottom: 12px;
     font-size: 1.1rem;
+    background-color: rgb(255, 255, 255);
 }
 
 .contenedor-chat textarea {

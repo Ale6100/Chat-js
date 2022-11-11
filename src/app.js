@@ -22,8 +22,11 @@ app.use(express.static(__dirname + "/public")); // Quiero que mi servicio de arc
 
 app.use("/", chatRouter)
 
-const mensajes = []; // Array que contiene información de cada mensaje
+let mensajes = []; // Array que contiene información de cada mensaje
+
 const contenedorHistorialChats = new Contenedor("historialChats")
+
+contenedorHistorialChats.getAll().then(response => mensajes = response) // Antes de iniciar el chat (justo después del npm start) recupera los mensajes del historial en caso de que haya
 
 io.on("connection", socket => {
     socket.emit("logs", mensajes) // Envío al usuario el array para que le muestre el historial de mensajes apenas se loguee
