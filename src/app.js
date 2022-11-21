@@ -2,7 +2,7 @@
 
 import express from "express";
 import __dirname from "./utils.js"
-import Contenedor from "./Contenedor.js"
+import Contenedor from "./Managers/Contenedor.js"
 import { Server } from "socket.io";
 import chatRouter from "./routes/views.chat.routes.js"
 

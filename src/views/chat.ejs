@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) | Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SRTMW0WPQF"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SRTMW0WPQF');
+    </script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/chat.css">
+    <link rel="shortcut icon" href="https://img.icons8.com/doodle/48/null/filled-topic.png" type="image/x-icon">
     <title>Sala de chat</title>
 </head>
 
@@ -12,15 +21,17 @@
     <main>
         <p class="noTerminado">Proyecto no terminado</p>
         <p>Comentario para los desarrolladores curiosos: para que este chat funcione no deben usar nodemon</p>
-        <div>
+        <section>
             <h1>Sala de chat</h1>
             
             <div class="contenedor-chat">
+                <div id="logsPanel">
+                    <p class='chatPlaceholder'>Aquí se anotará el historial de chats</p>
+                </div>
                 <input id="chatBox" type="text" placeholder="Escribe tu mensaje...">
-                <textarea id="logsPanel" placeholder="Aquí se anotará el historial de chats" readonly></textarea>
             </div>
 
-        </div>
+        </section>
         <p id="creditos">Desarrollado por <a href="https://www.linkedin.com/in/alejandro-portaluppi/" target="_blank">Alejandro P</a></p>
     </main>
     
