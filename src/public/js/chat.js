@@ -1,5 +1,3 @@
-//! Aviso: por cómo está programado el guardado de mensajes en el historialChats.json, el chat no va a funcionar bien si desarrollamos con nodemon
-
 const socket = io({ // Inicializamos socket del lado del cliente
     autoConnect: false
 }); 

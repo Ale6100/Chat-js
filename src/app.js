@@ -2,9 +2,10 @@
 
 import express from "express";
 import __dirname from "./utils.js"
-import Contenedor from "./Managers/Contenedor.js"
+import Contenedor from "./daos/Contenedor.js"
 import { Server } from "socket.io";
 import chatRouter from "./routes/views.chat.routes.js"
+import "./connectMongo.js"
 
 const app = express();
 
@@ -26,6 +27,8 @@ let mensajes = []; // Array que contiene información de cada mensaje
 
 const contenedorHistorialChats = new Contenedor("historialChats")
 
+// contenedorHistorialChats.deleteAll() // Descomentar sólo si se desea eliminar el chat
+
 contenedorHistorialChats.getAll().then(response => mensajes = response) // Antes de iniciar el chat (justo después del npm start) recupera los mensajes del historial en caso de que haya
 
 io.on("connection", socket => {
@@ -34,7 +37,7 @@ io.on("connection", socket => {
     socket.on("message", data => { // Recibo los datos de los mensajes emitidos en chat.js
         mensajes.push(data)
         io.emit("logs", mensajes) // Enviamos al io en vez de al socket para que el array llegue a todos los sockets (usuarios)
-        contenedorHistorialChats.save( data ) // Guardo los datos (el mensaje que se envió junto con su usuario) y la fecha en un archivo json llamado "historialChats.json" //! Gracias a esto el chat no puede funcionar mientras desarrollemos con nodemon, ya que al guardar el objeto estaríamos actualizando el código y nodemon lo ejecutaría de nuevo, provocando que los sockets se reinicien y el chat se borre del DOM
+        contenedorHistorialChats.saveOne( data ) // Guardo los datos (el mensaje que se envió junto con su usuario) y la fecha en una colección de Mongo
     })
 
     socket.on("autenticado", data => {
