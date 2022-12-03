@@ -45,13 +45,12 @@ socket.on("logs", data => { // Muestro los mensajes pasados
         const mensaje = `
         <div>
             <p class="pMensaje">${element.message}</p>
-            <p>${element.hora}</p>
+            <p class="pHora">${element.hora} | ${element.fecha}</p>
         </div>
         `
 
         if (data.length === 1) { // Si sólo hay un mensaje para mostrar
             logsPanel.innerHTML += `
-            <p class="fecha-inicial">----- ${element.fecha} -----</p>
             <div class="contenedor-cuerpoMensaje">
                 <div class="cuerpoMensaje">
                     <p> <span class="userSpan">${element.user}</span></p>
@@ -60,14 +59,6 @@ socket.on("logs", data => { // Muestro los mensajes pasados
             </div>
             `
         } else {
-            // Analizo si debo poner la fecha o no, de acuerdo a si hubo un cambio de día entre dos mensajes consecutivos
-            if (index === 0) {
-                logsPanel.innerHTML += `<p class="fecha-inicial">----- ${element.fecha} -----</p>`
-            
-            } else if (data[index].fecha !== data[index-1].fecha) {
-                logsPanel.innerHTML += `<p class="fecha">----- ${element.fecha} -----</p>`
-            }
-
             // Analizo si debo poner el nombre o no, de acuerdo a si hubo un cambio de usuario entre dos mensajes consecutivos
             if (index === 0) { // Guardamos el primer mensaje y hora
                 mensajesConsecutivosAcumulados = `${mensaje}`

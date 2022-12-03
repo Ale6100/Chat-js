@@ -90,12 +90,6 @@ h1 {
     width: 75%;
 }
 
-@media screen and (max-width: 600px) {
-    .cuerpoMensaje {
-        width: 85%;
-    }
-}
-
 .cuerpoMensaje div {
     display: flex;
     justify-content: space-between;
@@ -105,18 +99,9 @@ h1 {
     margin-right: 5px;
 }
 
-.fecha-inicial {
-    margin-bottom: 20px;
-    font-weight: bold;
-    text-align: center;
-    font-size: 1.2rem;
-}
-
-.fecha {
-    margin: 20px 0px 10px 0px;
-    font-weight: bold;
-    text-align: center;
-    font-size: 1.2rem;
+.pHora {
+    font-size: 0.75rem;
+    white-space: nowrap;
 }
 
 .userSpan {
@@ -125,4 +110,10 @@ h1 {
 
 .flex-end {
     justify-content: flex-end;
+}
+
+@media screen and (max-width: 600px) {
+    .cuerpoMensaje {
+        width: 90%;
+    }
 }
