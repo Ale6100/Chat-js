@@ -1,9 +1,7 @@
 import mongoose from 'mongoose';
-import key from "../keys/keys.js" // key privada
+import config from "./config/config.js";
 
-const password = key
-const database = "chat" // Si no existe, la crea
-const connection = mongoose.connect(`mongodb+srv://Ale6100:${password}@micluster.2ebvqqi.mongodb.net/${database}?retryWrites=true&w=majority`, error => {
+const connection = mongoose.connect(config.mongo.url, error => {
     if (error) console.log(error);
-    else console.log(`Base de mongo conectada. Database: ${database}`)
+    else console.log(`Base de mongo conectada`)
 })

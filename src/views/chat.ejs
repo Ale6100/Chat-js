@@ -19,17 +19,24 @@
 
 <body>
     <main>
-        <p class="noTerminado">Proyecto no terminado</p>
         <section>
             <h1>Sala de chat</h1>
-            
+
             <div class="contenedor-chat">
                 <div id="logsPanel">
                     <p class='chatPlaceholder'>Aquí se anotará el historial de chats</p>
                 </div>
-                <input id="chatBox" type="text" placeholder="Escribe tu mensaje...">
+                
+                <form id="form-chat">
+                    <input type="file" name="image">
+                    <div>
+                        <input id="chatBox" type="text" name="mensaje" placeholder="Escribe tu mensaje..." autocomplete="off">
+                        <button type="submit">
+                            <img src="https://img.icons8.com/color/48/null/filled-sent.png"/>
+                        </button>
+                    </div>
+                </form>
             </div>
-
         </section>
         <p id="creditos">Desarrollado por <a href="https://www.linkedin.com/in/alejandro-portaluppi/" target="_blank">Alejandro P</a></p>
     </main>

@@ -21,18 +21,34 @@ Swal.fire({ // Muestra una alerta que te pide tu nombre
     socket.emit("autenticado", user)
 })
 
-const chatBox = document.getElementById("chatBox")
+const form = document.getElementById("form-chat")
 
-chatBox.addEventListener("keyup", e => {
-    if (e.key === "Enter") {
-        const mensaje = chatBox.value.trim() // Quita los espacios sobrantes al principio y al final del mensaje
-        if (mensaje.length > 0) { // Se ejecuta si el mensaje es un string no vacío
-            const fecha = new Date().toLocaleDateString() // Fecha y hora en la que se mandó el mensaje
-            const hora = new Date().toLocaleTimeString()
-            socket.emit("message", {user, message: mensaje, fecha, hora}) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha y la hora
-            chatBox.value = ""
-        }
+form.addEventListener("submit", async e => {
+    e.preventDefault()
+
+    const formData = new FormData(form)
+    const obj = {}
+    formData.forEach((value, key) => obj[key] = value)
+
+    const mensaje = obj.mensaje.trim() // Quita los espacios sobrantes al principio y al final del mensaje
+    const tamanioImagen = obj.image.size
+
+    if (mensaje.length > 0 || tamanioImagen > 0) { // Se ejecuta si el mensaje es un string no vacío o si se quiere enviar una imagen
+
+        const res = await fetch("/guardarImagen", { // Enviamos a esta ruta el formData. Se encargará de guardar una imagen si el usuario así lo quiso
+            method: "POST",
+            body: formData // Enviamos los datos al body. Multer se va a encargar de procesarlos
+        }).then(res => res.json())
+
+        const urlImagen = res.imageSent ? res.payload : undefined // Si el usuario envió una imagen, se envía junto con los demás datos
+        
+        const fecha = new Date().toLocaleDateString() // Fecha y hora en la que se mandó el mensaje
+        const hora = new Date().toLocaleTimeString()
+        socket.emit("message", { user, message: mensaje, fecha, hora, urlImagen: urlImagen }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen enviada
+        chatBox.value = ""
     }
+
+    form.reset()
 })
 
 const logsPanel = document.getElementById("logsPanel")
@@ -44,7 +60,10 @@ socket.on("logs", data => { // Muestro los mensajes pasados
 
         const mensaje = `
         <div>
-            <p class="pMensaje">${element.message}</p>
+            <div class="divMensajeImagen">
+                ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
+                ${element.urlImagen ? `<img src="${element.urlImagen}" alt=""></img>` : ""}                    
+            </div>
             <p class="pHora">${element.hora} | ${element.fecha}</p>
         </div>
         `

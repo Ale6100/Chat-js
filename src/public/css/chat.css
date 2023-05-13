@@ -11,15 +11,8 @@ html {
 
 main {
     padding: 10px;
-}
-
-.noTerminado {
-    font-weight: bold;
-    color: rgb(0, 0, 0);
-    font-size: 0.75rem;
-    position: fixed;
-    left: 1vw;
-    top: 1vh;
+    margin: 0px auto;
+    max-width: 1200px;
 }
 
 h1 {
@@ -48,11 +41,39 @@ h1 {
     color: rgb(100, 100, 100);
 }
 
-.contenedor-chat input {
-    padding: 5px;
-    margin-top: 12px;
+.contenedor-chat > input {
+    margin: 10px 0px 5px 0px;
+}
+
+#form-chat {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+#form-chat > input {
+    margin: 10px 0px 5px 0px;
+}
+
+#form-chat div {
+    display: flex;
+    justify-content: space-between;
+}
+
+#form-chat div input {
     font-size: 1.1rem;
     background-color: rgb(255, 255, 255);
+    flex: 1
+}
+
+#form-chat div button {
+    width: 40px;
+    height: 40px
+}
+
+#form-chat div button img {
+    width: 100%;
+    height: 100%;
 }
 
 #creditos {
@@ -64,8 +85,6 @@ h1 {
 
 #creditos:hover {
     transform: scale(1.1);
-    font-weight: bold;
-    transform: translate(0px, 0px);
 }
 
 #creditos a {
@@ -95,8 +114,20 @@ h1 {
     justify-content: space-between;
 }
 
+.divMensajeImagen {
+    display: flex;
+    flex-direction: column;
+}
+
 .pMensaje {
+    text-align: start;
     margin-right: 5px;
+}
+
+.divMensajeImagen img {
+    margin: 5px auto 0px auto;
+    width: 75%;
+    max-height: 400px;
 }
 
 .pHora {

@@ -44,3 +44,5 @@ io.on("connection", socket => {
         socket.broadcast.emit("newUserConnected", data) // El brodcast hace que se envíe a todos menos al socket (usuario) que desencadena el evento
     })
 })
+
+export { server }

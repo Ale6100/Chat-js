@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
     },
     message: {
         type: String,
-        require: true
+        require: false
     },
     fecha: {
         type: String,
@@ -25,6 +25,10 @@ const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
     code: {
         type: String,
         require: true
+    },
+    urlImagen: {
+        type: String,
+        require: false 
     }
 })
 
