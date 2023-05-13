@@ -2,7 +2,7 @@
 
 Bienvenido! Te invito a conocer mi primer chat grupal. Tengo muchas cosas en mente todavía, pero es lo suficientemente funcional como para que lo puedas ojear. 
 
-Utiliza la versión más reciente subida a la web [aquí](https://chat-js-ale.onrender.com/)
+Utiliza la versión más reciente subida a la web [aquí](https://chat-js-ale.onrender.com/) | **13/05/2023 y *14/05/2023 proyecto en mantenimiento**
 
 ## Comenzando 🚀
 

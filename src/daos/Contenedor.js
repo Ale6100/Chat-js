@@ -1,4 +1,4 @@
-import chatModel from "../models/Chat.js"
+import chatModel from "../models/chat.js"
 
 const stringAleatorio = (n) => { // Devuelve un string aleatorio de longitud n
     const simbolos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789¡!¿?@#$%&()+-=*,.;:_"
