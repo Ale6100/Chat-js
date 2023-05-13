@@ -8,7 +8,7 @@ router.get("/", (req, res) => {
     res.render("chat"); // Renederizo chat.ejs
 })
 
-router.post("/guardarImagen", uploader.single('image'), async (req, res) => { // Se encarga de guardar las imágenes enviadas por los usuarios. Devuelve la url de la imagen guardada
+router.post("/guardarImagen", uploader.single('image'), async (req, res) => { // Este endpoint y el middleware se encargan de guardar las imágenes enviadas por los usuarios. Devuelve la url de la imagen guardada
     try {
         if (req.file) {
             let image

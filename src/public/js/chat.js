@@ -23,6 +23,23 @@ Swal.fire({ // Muestra una alerta que te pide tu nombre
 
 const form = document.getElementById("form-chat")
 
+document.getElementById("inputFile").addEventListener("click", (e) => { //! Eliminar si se desea enviar imágenes
+    e.preventDefault()
+    Toastify({
+        text: "Se pueden enviar imágenes en este chat, pero lamentablemente tuve que desactivar esta opción ya que en el sitio gratuito donde está subido el proyecto no me es posible hacerlo. Haz click aquí si deseas tener activada la opción siguiendo los pasos a seguir que anoté para que puedas crear tu propio chat",
+        duration: 10000,
+        destination: "https://github.com/Ale6100/Chat-js.git#sala-de-chat",
+        newWindow: true,
+        close: true,
+        gravity: "top",
+        position: "right",
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+    }).showToast();
+})
+
 form.addEventListener("submit", async e => {
     e.preventDefault()
 
@@ -34,7 +51,6 @@ form.addEventListener("submit", async e => {
     const tamanioImagen = obj.image.size
 
     if (mensaje.length > 0 || tamanioImagen > 0) { // Se ejecuta si el mensaje es un string no vacío o si se quiere enviar una imagen
-
         const res = await fetch("/guardarImagen", { // Enviamos a esta ruta el formData. Se encargará de guardar una imagen si el usuario así lo quiso
             method: "POST",
             body: formData // Enviamos los datos al body. Multer se va a encargar de procesarlos
@@ -62,7 +78,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados
         <div>
             <div class="divMensajeImagen">
                 ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
-                ${element.urlImagen ? `<img src="${element.urlImagen}" alt=""></img>` : ""}                    
+                ${element.urlImagen ? `<img src="${element.urlImagen}" alt="Imagen enviada">` : ""}             
             </div>
             <p class="pHora">${element.hora} | ${element.fecha}</p>
         </div>

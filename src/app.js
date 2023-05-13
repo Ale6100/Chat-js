@@ -39,7 +39,7 @@ io.on("connection", socket => {
         io.emit("logs", mensajes) // Enviamos al io en vez de al socket para que el array llegue a todos los sockets (usuarios)
         contenedorHistorialChats.saveOne( data ) // Guardo los datos (el mensaje que se envió junto con su usuario) y la fecha en una colección de Mongo
     })
-
+    
     socket.on("autenticado", data => {
         socket.broadcast.emit("newUserConnected", data) // El brodcast hace que se envíe a todos menos al socket (usuario) que desencadena el evento
     })
