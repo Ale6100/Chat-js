@@ -136,6 +136,13 @@ h1 {
     white-space: nowrap;
 }
 
+.fecha {
+    margin-top: 7px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
 .userSpan {
     font-weight: bold;
 }

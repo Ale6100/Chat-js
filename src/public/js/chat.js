@@ -72,20 +72,23 @@ const logsPanel = document.getElementById("logsPanel")
 socket.on("logs", data => { // Muestro los mensajes pasados
     logsPanel.innerHTML = ""
     let mensajesConsecutivosAcumulados = ""
-    data.forEach((element, index) => {
 
+    console.log('data:', data);
+
+    data.forEach((element, index) => { //  | ${element.fecha}
         const mensaje = `
         <div>
             <div class="divMensajeImagen">
                 ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
                 ${element.urlImagen ? `<img src="${element.urlImagen}" alt="Imagen enviada">` : ""}             
             </div>
-            <p class="pHora">${element.hora} | ${element.fecha}</p>
+            <p class="pHora">${element.hora}</p>
         </div>
         `
 
         if (data.length === 1) { // Si sólo hay un mensaje para mostrar
             logsPanel.innerHTML += `
+            <p class="fecha">${element.fecha}</p>
             <div class="contenedor-cuerpoMensaje">
                 <div class="cuerpoMensaje">
                     <p> <span class="userSpan">${element.user}</span></p>
@@ -96,10 +99,15 @@ socket.on("logs", data => { // Muestro los mensajes pasados
         } else {
             // Analizo si debo poner el nombre o no, de acuerdo a si hubo un cambio de usuario entre dos mensajes consecutivos
             if (index === 0) { // Guardamos el primer mensaje y hora
+                logsPanel.innerHTML = `<p class="fecha">----- ${element.fecha} -----</p>`                
                 mensajesConsecutivosAcumulados = `${mensaje}`
 
-            } else if (index !== data.length-1) { // Entra en este if si no estamos en la última iteración
+            } else if (index !== data.length-1) { // Entra en este if si no estamos ni en la primera iteración (mensaje) ni en la última
+                const fechaActual = new Date(element.fecha.split('/').reverse().join('-')).getTime()
+                const fechaAnterior = new Date(data[index-1].fecha.split('/').reverse().join('-')).getTime()
+                
                 if (data[index].user !== data[index-1].user) { // Cuando dos mensajes consecutivos son de distinto usuario
+
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
                         <div class="cuerpoMensaje">
@@ -109,12 +117,32 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                     </div>
                     ` // Se visualizan los mensajes previos guardados
 
+                    if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha
+                        console.log(element.fecha, data[index-1].fecha);
+                        logsPanel.innerHTML += `<p class="fecha">----- ${element.fecha} -----</p>`
+                    }
+
                     mensajesConsecutivosAcumulados = `${mensaje}` // Se guarda únicamente el mensaje actual
 
                 } else { // Cuando dos mensajes consecutivos son del mismo usuario
+                    if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha, ponemos el globo con los mensajes viejos acumulados y la fecha actual
+                        logsPanel.innerHTML += `
+                        <div class="contenedor-cuerpoMensaje">
+                            <div class="cuerpoMensaje">
+                                <p> <span class="userSpan">${data[index-1].user}</span></p>
+                                ${mensajesConsecutivosAcumulados}
+                            </div>
+                        </div>
+                        <p class="fecha">----- ${element.fecha} -----</p>
+                        `
+                        mensajesConsecutivosAcumulados = ""
+                    }
                     mensajesConsecutivosAcumulados += `${mensaje}` // Se guarda el mensaje actual a la lista
                 }
             } else if (index === data.length-1) { // En la última iteración
+                const fechaActual = new Date(element.fecha.split('/').reverse().join('-')).getTime()
+                const fechaAnterior = new Date(data[index-1].fecha.split('/').reverse().join('-')).getTime()
+
                 if (data[index].user !== data[index-1].user) { // Cuando los últimos dos mensajes son de distinto usuario
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
@@ -125,6 +153,10 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                     </div>
                     ` // Se visualizan los mensajes previos guardados
 
+                    if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha
+                        logsPanel.innerHTML += `<p class="fecha">----- ${element.fecha} -----</p>`
+                    }
+
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
                         <div class="cuerpoMensaje">
@@ -134,6 +166,19 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                     </div>
                     ` // Se visualiza el último mensaje enviado
                 } else { // Cuando los últimos dos mensajes son del mismo usuario
+                    if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha
+                        logsPanel.innerHTML += `
+                        <div class="contenedor-cuerpoMensaje">
+                            <div class="cuerpoMensaje">
+                                <p> <span class="userSpan">${element.user}</span></p>
+                                ${mensajesConsecutivosAcumulados}
+                            </div>
+                        </div>
+                        <p class="fecha">----- ${element.fecha} -----</p>
+                        `
+                        mensajesConsecutivosAcumulados = ""
+                    }
+
                     mensajesConsecutivosAcumulados += `${mensaje}` // Guardo el último mensaje
 
                     logsPanel.innerHTML += `
