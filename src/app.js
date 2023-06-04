@@ -1,11 +1,12 @@
 "use strict";
 
 import express from "express";
-import __dirname from "./utils.js"
-import Contenedor from "./daos/Contenedor.js"
+import __dirname from "./utils.js";
+import Contenedor from "./daos/Contenedor.js";
 import { Server } from "socket.io";
-import chatRouter from "./routes/views.chat.routes.js"
-import "./connectMongo.js"
+import viewsChatRouter from "./routes/views.chat.routes.js";
+import chatRouter from "./routes/chat.routes.js";
+import "./connectMongo.js";
 
 const app = express();
 
@@ -21,7 +22,8 @@ app.set("view engine", "ejs"); // Configuramos EJS como el motor de visualizaci�
 
 app.use(express.static(__dirname + "/public")); // Quiero que mi servicio de archivos estáticos se mantenga en public
 
-app.use("/", chatRouter)
+app.use("/", viewsChatRouter)
+app.use("/api", chatRouter)
 
 let mensajes = []; // Array que contiene información de cada mensaje
 

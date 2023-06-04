@@ -30,12 +30,14 @@ document.getElementById("inputFile").addEventListener("click", (e) => { //! Elim
         duration: 10000,
         destination: "https://github.com/Ale6100/Chat-js.git#sala-de-chat",
         newWindow: true,
-        close: true,
+        close: false,
         gravity: "top",
         position: "right",
-        stopOnFocus: true, // Prevents dismissing of toast on hover
+        stopOnFocus: true,
         style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
+            background: "linear-gradient(to right, #00b09b, rgb(125, 125, 61))",
+            border: "2px solid black",
+            borderRadius: "2px"
         }
     }).showToast();
 })
@@ -44,14 +46,13 @@ form.addEventListener("submit", async e => {
     e.preventDefault()
 
     const formData = new FormData(form)
-    const obj = {}
-    formData.forEach((value, key) => obj[key] = value)
+    const obj = Object.fromEntries(formData); // Convertimos el FormData a un objeto
 
     const mensaje = obj.mensaje.trim() // Quita los espacios sobrantes al principio y al final del mensaje
     const tamanioImagen = obj.image.size
 
     if (mensaje.length > 0 || tamanioImagen > 0) { // Se ejecuta si el mensaje es un string no vacío o si se quiere enviar una imagen
-        const res = await fetch("/guardarImagen", { // Enviamos a esta ruta el formData. Se encargará de guardar una imagen si el usuario así lo quiso
+        const res = await fetch("/api/guardarImagen", { // Enviamos a esta ruta el formData. Se encargará de guardar una imagen si el usuario así lo quiso
             method: "POST",
             body: formData // Enviamos los datos al body. Multer se va a encargar de procesarlos
         }).then(res => res.json())
@@ -60,7 +61,7 @@ form.addEventListener("submit", async e => {
         
         const fecha = new Date().toLocaleDateString() // Fecha y hora en la que se mandó el mensaje
         const hora = new Date().toLocaleTimeString()
-        socket.emit("message", { user, message: mensaje, fecha, hora, urlImagen: urlImagen }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen enviada
+        socket.emit("message", { user, message: mensaje, fecha, hora, urlImagen: urlImagen }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen en caso de que haya enviado
         chatBox.value = ""
     }
 
@@ -73,9 +74,8 @@ socket.on("logs", data => { // Muestro los mensajes pasados
     logsPanel.innerHTML = ""
     let mensajesConsecutivosAcumulados = ""
 
-    console.log('data:', data);
-
-    data.forEach((element, index) => { //  | ${element.fecha}
+    data.forEach((element, index) => { // Mapeo los mensajes. Considerar que es un forEach raro debido a que se requiere ordenar de una manera especial los mensajes
+        // Estructura de cada mensaje
         const mensaje = `
         <div>
             <div class="divMensajeImagen">
@@ -88,7 +88,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados
 
         if (data.length === 1) { // Si sólo hay un mensaje para mostrar
             logsPanel.innerHTML += `
-            <p class="fecha">${element.fecha}</p>
+            <p class="fecha">----- ${element.fecha} -----</p>
             <div class="contenedor-cuerpoMensaje">
                 <div class="cuerpoMensaje">
                     <p> <span class="userSpan">${element.user}</span></p>
@@ -97,17 +97,16 @@ socket.on("logs", data => { // Muestro los mensajes pasados
             </div>
             `
         } else {
-            // Analizo si debo poner el nombre o no, de acuerdo a si hubo un cambio de usuario entre dos mensajes consecutivos
-            if (index === 0) { // Guardamos el primer mensaje y hora
-                logsPanel.innerHTML = `<p class="fecha">----- ${element.fecha} -----</p>`                
-                mensajesConsecutivosAcumulados = `${mensaje}`
+            const fechaActual = new Date(element.fecha.split('/').reverse().join('-')).getTime()
+            const fechaAnterior = new Date(data[index-1]?.fecha.split('/').reverse().join('-')).getTime() // Uso el signo de pregunta ya que en la primera iteración, data[index-1] no está definido, pero no importa ya que en ese momento no lo necesitamos
+
+            if (index === 0) { // Entra en este if si estamos en la primera iteración (correspondiente al primer mensaje)
+                logsPanel.innerHTML = `<p class="fecha">----- ${element.fecha} -----</p>` // Al inicio siempre se mostrará la primera fecha
+                mensajesConsecutivosAcumulados = `${mensaje}` // Guardamos el primer mensaje y hora
 
             } else if (index !== data.length-1) { // Entra en este if si no estamos ni en la primera iteración (mensaje) ni en la última
-                const fechaActual = new Date(element.fecha.split('/').reverse().join('-')).getTime()
-                const fechaAnterior = new Date(data[index-1].fecha.split('/').reverse().join('-')).getTime()
-                
-                if (data[index].user !== data[index-1].user) { // Cuando dos mensajes consecutivos son de distinto usuario
-
+                if (data[index].user !== data[index-1].user) { // Cuando el mensaje actual y el anterior son de distinto usuario
+                    // En un contenedor grande se visualizan todos los mensajes previos guardados, correspondiente al usuario anterior
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
                         <div class="cuerpoMensaje">
@@ -115,16 +114,15 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                             ${mensajesConsecutivosAcumulados}
                         </div>
                     </div>
-                    ` // Se visualizan los mensajes previos guardados
+                    `
 
-                    if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha
-                        console.log(element.fecha, data[index-1].fecha);
+                    if (fechaActual !== fechaAnterior) { // Si además hubo un cambio de fecha, muestra la actual, correspondiente a la fecha del mensaje enviado por el nuevo usuario
                         logsPanel.innerHTML += `<p class="fecha">----- ${element.fecha} -----</p>`
                     }
 
-                    mensajesConsecutivosAcumulados = `${mensaje}` // Se guarda únicamente el mensaje actual
+                    mensajesConsecutivosAcumulados = `${mensaje}` // Se guarda únicamente el mensaje actual, correspondiente al nuevo usuario
 
-                } else { // Cuando dos mensajes consecutivos son del mismo usuario
+                } else { // Cuando el mensaje actual y el anterior son del mismo usuario
                     if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha, ponemos el globo con los mensajes viejos acumulados y la fecha actual
                         logsPanel.innerHTML += `
                         <div class="contenedor-cuerpoMensaje">
@@ -144,6 +142,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                 const fechaAnterior = new Date(data[index-1].fecha.split('/').reverse().join('-')).getTime()
 
                 if (data[index].user !== data[index-1].user) { // Cuando los últimos dos mensajes son de distinto usuario
+                    // En un contenedor grande se visualizan todos los mensajes previos guardados, correspondiente al usuario anterior
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
                         <div class="cuerpoMensaje">
@@ -151,12 +150,13 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                             ${mensajesConsecutivosAcumulados}
                         </div>
                     </div>
-                    ` // Se visualizan los mensajes previos guardados
+                    `
 
-                    if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha
+                    if (fechaActual !== fechaAnterior) { // Si además hubo un cambio de fecha, muestra la actual, correspondiente a la fecha del mensaje enviado por el nuevo usuario
                         logsPanel.innerHTML += `<p class="fecha">----- ${element.fecha} -----</p>`
                     }
 
+                    // Se visualiza el último mensaje enviado, correspondiente al nuevo usuario
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
                         <div class="cuerpoMensaje">
@@ -164,7 +164,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                             ${mensaje}
                         </div>
                     </div>
-                    ` // Se visualiza el último mensaje enviado
+                    `
                 } else { // Cuando los últimos dos mensajes son del mismo usuario
                     if (fechaActual !== fechaAnterior) { // Si hubo un cambio de fecha
                         logsPanel.innerHTML += `
@@ -181,6 +181,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados
 
                     mensajesConsecutivosAcumulados += `${mensaje}` // Guardo el último mensaje
 
+                    // Se visualiza el último grupo de mensajes correspondiente al último usuario en enviar mensaje
                     logsPanel.innerHTML += `
                     <div class="contenedor-cuerpoMensaje">
                         <div class="cuerpoMensaje">
@@ -188,7 +189,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados
                             ${mensajesConsecutivosAcumulados}
                         </div>
                     </div>
-                    ` // Se visualiza el último grupo de mensajes correspondiente al último usuario en enviar mensaje
+                    `
                 }
             }
         }

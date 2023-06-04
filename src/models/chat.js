@@ -4,33 +4,33 @@ const collection = 'historialChats'; // Nombre de la colección a manipular
 const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
     user: {
         type: String,
-        require: true
+        required: true
     },
     message: {
         type: String,
-        require: false
+        required: false
     },
     fecha: {
         type: String,
-        require: true
+        required: true
     },
     hora: {
         type: String,
-        require: true
+        required: true
     },
     timestamp: {
         type: Number,
-        require: true
+        required: true
     },
     code: {
         type: String,
-        require: true
+        required: true
     },
     urlImagen: {
         type: String,
-        require: false 
+        required: false 
     }
-})
+});
 
 const chatModel = mongoose.model(collection, schema);
 

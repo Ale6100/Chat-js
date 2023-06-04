@@ -1,15 +1,15 @@
-import chatModel from "../models/chat.js"
+import chatModel from "../models/chat.js";
 
-const stringAleatorio = (n) => { // Devuelve un string aleatorio de longitud n
+const stringAleatorio = (n) => { // Recibe un número "n" natural, devuelve un string con carácteres aleatorios de longitud "n"
     const simbolos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789¡!¿?@#$%&()+-=*,.;:_"
     let stringRandom = ""
     for (let i=1; i<=n; i++) {
-        stringRandom += simbolos[parseInt(simbolos.length*Math.random())]
+        stringRandom += simbolos[Math.floor(simbolos.length*Math.random())]
     }
     return stringRandom
 }
 
-// Esta clase crea un objeto que manipula una colección en MongoDB con documentos dentro. Dichos documentos pueden ser agregados, modificados, borrados y consultados
+// Esta clase crea un objeto que manipula una colección en MongoDB con documentos dentro. Dichos documentos pueden ser agregados, consultados, modificados y eliminados
 
 class Contenedor {
     constructor(nombreColeccion) {

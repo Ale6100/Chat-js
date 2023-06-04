@@ -4,7 +4,7 @@ dotenv.config(); // Copia todas las igualdades que estén en el archivo ".env" y
 
 // Por seguridad al archivo .env no lo dejo como público, puedes hacerte el tuyo a la altura de la carpeta src
 
-export default { // Exporto un objeto que incluye de manera ordenada las variables de entorno recién mencionadas
+export default { // Exporto un objeto que incluye de manera ordenada las variables de entorno recién mencionadas (para este proyecto por ahora sólo estoy usando una)
     mongo: {
         url: process.env.MONGO_URL
     }
