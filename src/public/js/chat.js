@@ -1,3 +1,5 @@
+"use strict";
+
 const socket = io({ // Inicializamos socket del lado del cliente
     autoConnect: false
 }); 
@@ -62,7 +64,6 @@ form.addEventListener("submit", async e => {
         const fecha = new Date().toLocaleDateString() // Fecha y hora en la que se mandó el mensaje
         const hora = new Date().toLocaleTimeString()
         socket.emit("message", { user, message: mensaje, fecha, hora, urlImagen: urlImagen }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen en caso de que haya enviado
-        chatBox.value = ""
     }
 
     form.reset()
@@ -70,7 +71,7 @@ form.addEventListener("submit", async e => {
 
 const logsPanel = document.getElementById("logsPanel")
 
-const mapearMensajes = (data) => {
+socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje y cada vez que se elimina uno
     logsPanel.innerHTML = ""
     let mensajesConsecutivosAcumulados = ""
 
@@ -205,7 +206,7 @@ const mapearMensajes = (data) => {
         logsPanel.scrollTop = logsPanel.scrollHeight // Hago que la barra siempre vaya abajo de todo cuando enviamos un mensaje
     })
 
-    for (let index = 0; index < data.length; index++) {
+    for (let index=0; index<data.length; index++) {
         const element = data[index];
 
         document.getElementById(`btn-delete-${index}`).addEventListener("click", () => {
@@ -243,7 +244,7 @@ const mapearMensajes = (data) => {
                             title: `${res.message}`,
                             icon: "success"
                         })
-                        mapearMensajes(res.data)
+                        socket.emit("actualizar", { data: res.data }) 
                     }
                 })
             } else {
@@ -258,10 +259,6 @@ const mapearMensajes = (data) => {
             }
         })
     }
-}
-
-socket.on("logs", data_ => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje
-    mapearMensajes(data_)
 })
 
 socket.on("newUserConnected", data => { // Muestra una pequeña alerta cuando un usuario nuevo se conecta

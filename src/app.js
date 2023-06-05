@@ -34,16 +34,20 @@ const contenedorHistorialChats = new Contenedor("historialChats")
 
 // contenedorHistorialChats.deleteAll() // Descomentar sólo si se desea eliminar el chat
 
-io.on("connection", async socket => { 
-    const response = await contenedorHistorialChats.getAll()
-    mensajes = response // Justo después de que un usuario se conecta, se recuperan los mensajes del historial en caso de que hayan
+contenedorHistorialChats.getAll().then(response => mensajes = response) // Antes de iniciar el chat (justo después del npm start) recuperan los mensajes del historial en caso de que haya
 
+io.on("connection", async socket => { 
     socket.emit("logs", mensajes) // Envío al usuario el array de mensajes para que le muestre el historial
 
-    socket.on("message", data => { // Recibo los datos de los mensajes emitidos en chat.js
+    socket.on("message", async data => { // Recibo los datos de los mensajes emitidos en chat.js
+        data._id = await contenedorHistorialChats.saveOne( data ) // Guardo en una colección de Mongo al objeto con los datos del mensaje que se envió 
         mensajes.push(data)
         io.emit("logs", mensajes) // Enviamos al io en vez de al socket para que el array llegue a todos los sockets (usuarios)
-        contenedorHistorialChats.saveOne( data ) // Guardo los datos (el mensaje que se envió junto con su usuario) y la fecha en una colección de Mongo
+    })
+
+    socket.on("actualizar", data => {
+        mensajes = data.data
+        io.emit("logs", mensajes)
     })
     
     socket.on("autenticado", data => {
