@@ -32,6 +32,10 @@ class Contenedor {
         return saveOne_._id.valueOf()
     }
 
+    async deleteOne(id) {
+        await this.model.deleteOne({ _id: id })
+    }
+
     async deleteAll() { // Vacía la colección
         await this.model.deleteMany({})
     }

@@ -109,12 +109,13 @@ h1 {
     width: 75%;
 }
 
-.cuerpoMensaje div {
+.mensajeIndividual {
     display: flex;
     justify-content: space-between;
 }
 
 .divMensajeImagen {
+    margin-bottom: 5px;
     display: flex;
     flex-direction: column;
 }
@@ -122,6 +123,7 @@ h1 {
 .pMensaje {
     text-align: start;
     margin-right: 5px;
+    overflow-wrap: break-word;
 }
 
 .divMensajeImagen img {
@@ -131,9 +133,23 @@ h1 {
     font-size: 0.6rem;
 }
 
+.mensajeIndividual div {
+    display: flex;
+    justify-content: space-between;
+    word-break: break-all;
+}
+
 .pHora {
     font-size: 0.75rem;
     white-space: nowrap;
+}
+
+.pBasura {
+    height: 1.3rem;
+    margin-left: 5px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
 .fecha {

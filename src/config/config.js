@@ -7,5 +7,9 @@ dotenv.config(); // Copia todas las igualdades que estén en el archivo ".env" y
 export default { // Exporto un objeto que incluye de manera ordenada las variables de entorno recién mencionadas (para este proyecto por ahora sólo estoy usando una)
     mongo: {
         url: process.env.MONGO_URL
+    },
+
+    token: {
+        deleteMessage: process.env.TOKEN_DELETE_MESSAGE
     }
 }

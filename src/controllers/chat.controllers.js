@@ -1,4 +1,8 @@
 import { server } from "../app.js";
+import config from "../config/config.js";
+import Contenedor from "../daos/Contenedor.js";
+
+const contenedorHistorialChats = new Contenedor("historialChats")
 
 const guardarImagen = (req, res) => { // En /api/guardarImagen con el método POST guardo las imágenes enviadas por los usuarios. Devuelve la url de la imagen guardada
     try {
@@ -18,6 +22,19 @@ const guardarImagen = (req, res) => { // En /api/guardarImagen con el método PO
     }
 }
 
+const eliminarMensaje = async (req, res) => { // En /api/eliminarMensaje con el método DELETE eliminamos un mensaje según su id pasado por el body, y devolvemos el nuevo historial modificado
+    const { id, token } = req.body
+
+    if (config.token.deleteMessage === token) {
+        await contenedorHistorialChats.deleteOne(id)
+        const data = await contenedorHistorialChats.getAll()
+        res.status(200).send({ status: "success", message: "Mensaje eliminado", data })
+    } else {
+        res.status(403).send({ status: "error", message: "Contraseña incorrecta" })
+    }
+}
+
 export default {
-    guardarImagen
+    guardarImagen,
+    eliminarMensaje
 }

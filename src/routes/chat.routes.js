@@ -6,4 +6,6 @@ const router = Router();
 
 router.post("/guardarImagen", uploader.single('image'), chatControllers.guardarImagen)
 
+router.delete("/eliminarMensaje", chatControllers.eliminarMensaje)
+
 export default router

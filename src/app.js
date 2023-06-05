@@ -20,6 +20,9 @@ server.on("error", error => console.log(error));
 app.set("views", `${__dirname}/views`); // Ubicación de las vistas
 app.set("view engine", "ejs"); // Configuramos EJS como el motor de visualización de nuestra app
 
+app.use(express.json()); // Especifica que podemos recibir json
+app.use(express.urlencoded({ extended: true })); // Habilita poder procesar y parsear datos más complejos en la url
+
 app.use(express.static(__dirname + "/public")); // Quiero que mi servicio de archivos estáticos se mantenga en public
 
 app.use("/", viewsChatRouter)
@@ -31,10 +34,11 @@ const contenedorHistorialChats = new Contenedor("historialChats")
 
 // contenedorHistorialChats.deleteAll() // Descomentar sólo si se desea eliminar el chat
 
-contenedorHistorialChats.getAll().then(response => mensajes = response) // Antes de iniciar el chat (justo después del npm start) recupera los mensajes del historial en caso de que haya
+io.on("connection", async socket => { 
+    const response = await contenedorHistorialChats.getAll()
+    mensajes = response // Justo después de que un usuario se conecta, se recuperan los mensajes del historial en caso de que hayan
 
-io.on("connection", socket => {
-    socket.emit("logs", mensajes) // Envío al usuario el array para que le muestre el historial de mensajes apenas se loguee
+    socket.emit("logs", mensajes) // Envío al usuario el array de mensajes para que le muestre el historial
 
     socket.on("message", data => { // Recibo los datos de los mensajes emitidos en chat.js
         mensajes.push(data)

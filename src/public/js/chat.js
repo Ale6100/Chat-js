@@ -70,19 +70,22 @@ form.addEventListener("submit", async e => {
 
 const logsPanel = document.getElementById("logsPanel")
 
-socket.on("logs", data => { // Muestro los mensajes pasados
+const mapearMensajes = (data) => {
     logsPanel.innerHTML = ""
     let mensajesConsecutivosAcumulados = ""
 
     data.forEach((element, index) => { // Mapeo los mensajes. Considerar que es un forEach raro debido a que se requiere ordenar de una manera especial los mensajes
         // Estructura de cada mensaje
         const mensaje = `
-        <div>
+        <div class="mensajeIndividual">
             <div class="divMensajeImagen">
                 ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
-                ${element.urlImagen ? `<img src="${element.urlImagen}" alt="Imagen enviada">` : ""}             
+                ${element.urlImagen ? `<img src="${element.urlImagen}" alt="Imagen enviada">` : ""}
             </div>
-            <p class="pHora">${element.hora}</p>
+            <div>
+                <p class="pHora">${element.hora}</p>
+                <button id="btn-delete-${index}" class="pBasura">🗑️</button>
+            </div>
         </div>
         `
 
@@ -201,6 +204,64 @@ socket.on("logs", data => { // Muestro los mensajes pasados
         })
         logsPanel.scrollTop = logsPanel.scrollHeight // Hago que la barra siempre vaya abajo de todo cuando enviamos un mensaje
     })
+
+    for (let index = 0; index < data.length; index++) {
+        const element = data[index];
+
+        document.getElementById(`btn-delete-${index}`).addEventListener("click", () => {
+            if (user.toLowerCase() === "ale" || user.toLowerCase() === "alejandro") { // Yo siempre uso estos nombres, pero si alguien más lo hace no hay problema porque igual tiene que poner contraseña
+                Swal.fire({ // Muestra una alerta pidiéndote contraseña | Lo más normal sería que en realidad cada usuario pueda eliminar su propio mensaje, pero como no tengo un sistema de logueo se me ocurrió hacerlo por contraseña. Lamentablemente esta contraseña sólo la tengo que saber yo para que nadie elimine maliciosamente
+                    title: "Eliminar mensaje",
+                    input: "password",
+                    text: "Debes ingresar una contraseña especial para eliminar mensajes",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then( async result => {
+                    const res = await fetch("/api/eliminarMensaje", {
+                        method: "DELETE",
+                        body: JSON.stringify({ id: element._id, token: result.value }),
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }).then(res => res.json())
+
+                    if (res.status === "error") {
+                        Swal.fire({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 4000,
+                            title: `${res.message}`,
+                            icon: "error"
+                        })
+                    } else {
+                        Swal.fire({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 4000,
+                            title: `${res.message}`,
+                            icon: "success"
+                        })
+                        mapearMensajes(res.data)
+                    }
+                })
+            } else {
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 4000,
+                    title: "Por el momento sólo el administrador puede eliminar mensajes",
+                    icon: "info"
+                })
+            }
+        })
+    }
+}
+
+socket.on("logs", data_ => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje
+    mapearMensajes(data_)
 })
 
 socket.on("newUserConnected", data => { // Muestra una pequeña alerta cuando un usuario nuevo se conecta
@@ -208,7 +269,7 @@ socket.on("newUserConnected", data => { // Muestra una pequeña alerta cuando un
         toast: true,
         position: "top-end",
         showConfirmButton: false,
-        timer: 3000,
+        timer: 4000,
         title: `${data} se ha unido al chat`,
         icon: "success"
     })
