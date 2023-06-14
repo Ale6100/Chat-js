@@ -1,31 +1,39 @@
-"use strict";
+// @ts-ignore
+//@ts-nocheck
+// @ts-nocheck
+// @ts-ignore-next-line
+
+declare const io: any; // No quise hacer esto, pero no poseo el tipado de estas funciones ya que las importo mediante link CDN
+declare const Swal: any;
+declare const Toastify: any;
 
 const socket = io({ // Inicializamos socket del lado del cliente
     autoConnect: false
 }); 
 
-let user;
+let user: string;
+
+const esNumerico = (string: string) => {
+    return !isNaN(Number(string)) && string !== "" && !string.includes(" ");
+}
 
 Swal.fire({ // Muestra una alerta que te pide tu nombre
     title: "Identifícate",
     input: "text",
     text: "Por favor ingresa tu nombre de usuario",
-    inputValidator: (value) => { // Valida que en el imput no coloquemos un string numérico o vacío
-        if (!isNaN(value)) { 
-            return "¡Utiliza un nombre de usaurio válido!"
-        }
+    inputValidator: (value: string) => { // Valida que en el imput no coloquemos un string numérico o vacío
+        value = value.trim()
+        if (esNumerico(value)) return "¡Utiliza un nombre de usuario válido!"
     },
     allowOutsideClick: false,
     allowEscapeKey: false,
-}).then(result => {
+}).then((result: { value: string }) => {
     user = result.value
     socket.connect() // Le pedimos que se conecte cuando el usuario ingresó un nombre válido
     socket.emit("autenticado", user)
 })
 
-const form = document.getElementById("form-chat")
-
-document.getElementById("inputFile").addEventListener("click", (e) => { //! Eliminar si se desea enviar imágenes
+document.getElementById("inputFile")?.addEventListener("click", (e) => { //! Eliminar si se desea enviar imágenes
     e.preventDefault()
     Toastify({
         text: "Se pueden enviar imágenes en este chat, pero lamentablemente tuve que desactivar esta opción ya que en el sitio gratuito donde está subido el proyecto no me es posible hacerlo. Haz click aquí si deseas tener activada la opción siguiendo los pasos a seguir que anoté para que puedas crear tu propio chat",
@@ -44,14 +52,21 @@ document.getElementById("inputFile").addEventListener("click", (e) => { //! Elim
     }).showToast();
 })
 
-form.addEventListener("submit", async e => {
+const form = document.getElementById("form-chat") as HTMLFormElement | null
+
+form?.addEventListener("submit", async e => {
     e.preventDefault()
 
-    const formData = new FormData(form)
-    const obj = Object.fromEntries(formData); // Convertimos el FormData a un objeto
+    interface ObjInt {
+        [key: string]: FormDataEntryValue
+    }
 
-    const mensaje = obj.mensaje.trim() // Quita los espacios sobrantes al principio y al final del mensaje
-    const tamanioImagen = obj.image.size
+    const formData = new FormData(form)
+    const obj: ObjInt = {}
+    formData.forEach((value, key) => obj[key] = value)
+
+    const mensaje = (obj.mensaje as string).trim();
+    const tamanioImagen = (obj.image as { size: number }).size
 
     if (mensaje.length > 0 || tamanioImagen > 0) { // Se ejecuta si el mensaje es un string no vacío o si se quiere enviar una imagen
         const res = await fetch("/api/guardarImagen", { // Enviamos a esta ruta el formData. Se encargará de guardar una imagen si el usuario así lo quiso
@@ -71,7 +86,19 @@ form.addEventListener("submit", async e => {
 
 const logsPanel = document.getElementById("logsPanel")
 
-socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje y cada vez que se elimina uno
+interface Menssage {
+    user: string,
+    message: string,
+    fecha: string,
+    hora: string,
+    timestamp: number,
+    code: string,
+    urlImagen: string,
+    id?: string
+}
+
+socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje y cada vez que se elimina uno
+    if (!logsPanel) return ""
     logsPanel.innerHTML = ""
     let mensajesConsecutivosAcumulados = ""
 
@@ -199,7 +226,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se env
         }
 
         document.querySelectorAll(".contenedor-cuerpoMensaje").forEach(etiqueta => { // Hago esto para que los mensajes enviados por el usuario actual se vean a la derecha, y el resto a la izquierda
-            if (etiqueta.children[0].children[0].innerText === user) {
+            if ((etiqueta.children[0].children[0] as HTMLElement).innerText === user) {
                 etiqueta.classList.add("flex-end")                
             }
         })
@@ -209,7 +236,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se env
     for (let index=0; index<data.length; index++) {
         const element = data[index];
 
-        document.getElementById(`btn-delete-${index}`).addEventListener("click", () => {
+        document.getElementById(`btn-delete-${index}`)?.addEventListener("click", () => {
             if (user.toLowerCase() === "ale" || user.toLowerCase() === "alejandro") { // Yo siempre uso estos nombres, pero si alguien más lo hace no hay problema porque igual tiene que poner contraseña
                 Swal.fire({ // Muestra una alerta pidiéndote contraseña | Lo más normal sería que en realidad cada usuario pueda eliminar su propio mensaje, pero como no tengo un sistema de logueo se me ocurrió hacerlo por contraseña. Lamentablemente esta contraseña sólo la tengo que saber yo para que nadie elimine maliciosamente
                     title: "Eliminar mensaje",
@@ -217,12 +244,13 @@ socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se env
                     text: "Debes ingresar una contraseña especial para eliminar mensajes",
                     allowOutsideClick: false,
                     allowEscapeKey: false,
-                }).then( async result => {
+                }).then( async (result: { value: string }) => {
                     const res = await fetch("/api/eliminarMensaje", {
                         method: "DELETE",
-                        body: JSON.stringify({ id: element._id, token: result.value }),
+                        body: JSON.stringify({ id: element.id }),
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${result.value}`
                         }
                     }).then(res => res.json())
 
@@ -232,7 +260,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se env
                             position: "top-end",
                             showConfirmButton: false,
                             timer: 4000,
-                            title: `${res.message}`,
+                            title: `${res.message ?? "Error, intente de nuevo más tarde"}`,
                             icon: "error"
                         })
                     } else {
@@ -261,7 +289,7 @@ socket.on("logs", data => { // Muestro los mensajes pasados, cada vez que se env
     }
 })
 
-socket.on("newUserConnected", data => { // Muestra una pequeña alerta cuando un usuario nuevo se conecta
+socket.on("newUserConnected", (data: string) => { // Muestra una pequeña alerta cuando un usuario nuevo se conecta
     Swal.fire({
         toast: true,
         position: "top-end",

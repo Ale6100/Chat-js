@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const collection = 'historialChats'; // Nombre de la colección a manipular
+
 const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
     user: {
         type: String,

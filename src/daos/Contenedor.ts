@@ -1,6 +1,7 @@
 import chatModel from "../models/chat.js";
 
-const stringAleatorio = (n) => { // Recibe un número "n" natural, devuelve un string con carácteres aleatorios de longitud "n"
+const stringAleatorio = (n: number): string => { // Recibe un número "n" natural, devuelve un string con carácteres aleatorios de longitud "n"
+    if (!Number.isInteger(n) || n <= 0) throw new Error(`stringAleatorio debe recibir número natural. Se ha recibido ${JSON.stringify(n)} (${typeof n})`)
     const simbolos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789¡!¿?@#$%&()+-=*,.;:_"
     let stringRandom = ""
     for (let i=1; i<=n; i++) {
@@ -9,10 +10,23 @@ const stringAleatorio = (n) => { // Recibe un número "n" natural, devuelve un s
     return stringRandom
 }
 
+interface Menssage {
+    user: string,
+    message: string,
+    fecha: string,
+    hora: string,
+    timestamp?: number,
+    code?: string,
+    urlImagen: string,
+    id?: string
+}
+
 // Esta clase crea un objeto que manipula una colección en MongoDB con documentos dentro. Dichos documentos pueden ser agregados, consultados, modificados y eliminados
 
 class Contenedor {
-    constructor(nombreColeccion) {
+    public model
+    
+    constructor(nombreColeccion: string) {
         if (nombreColeccion === "historialChats") { // Analizo cuál modelo voy a utilizar, según sea el nombre de la colección que se haya pasado como parámetro
             this.model = chatModel
         } else {
@@ -24,15 +38,15 @@ class Contenedor {
         return await this.model.find({})
     }
 
-    async saveOne(document) { // Recibe un documento, lo guarda en la colección, le coloca un id único y devuelve ese id
+    async saveOne(document: Menssage) { // Recibe un documento, lo guarda en la colección, le coloca un id único y devuelve ese id
         document.timestamp = Date.now()
         document.code = stringAleatorio(10)
         const documentSaveModel = new this.model(document)
         const saveOne_ = await documentSaveModel.save()
-        return saveOne_._id.valueOf()
+        return saveOne_._id.valueOf() as string
     }
 
-    async deleteOne(id) {
+    async deleteOne(id: string) {
         await this.model.deleteOne({ _id: id })
     }
 

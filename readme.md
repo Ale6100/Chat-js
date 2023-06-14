@@ -32,24 +32,35 @@ MONGO_URL = X # URL de mongo, la que ponemos dentro de mongoose.connect(X)
 TOKEN_DELETE_MESSAGE = X # Token de seguridad que sólo conoce el "administrador", lo habilita a eliminar mensajes
 ```
 
+## Desarrollo 👷
+
+La carpeta de trabajo es [src](/src) y su archivo principal se ubica en [src/app.ts](src/app.ts). Realiza las modificaciones que desees y, cuando estés listo, ejecuta el siguiente comando:
+
+```
+npm run tsc-copy
+```
+
+Este comando se encarga de crear una carpeta `dist` lista para su uso: primero compilará todos los archivos TypeScript y los guardará en `dist`, luego copiará todos los archivos restantes de `src` a `dist`, manteniendo así la estructura de organización, y finalmente eliminará el "export {};" generado por TypeScript del archivo `script.js` que lee el navegador.
+
+Recomiendo eliminar o vaciar la carpeta `dist` antes de ejecutar dicho comando.
+
 ## Despliegue 📦
 
-Corre el proyecto con el comando
+Para ejecutar el proyecto compilado, utiliza el comando:
 
 ```
 npm start
 ```
 
-Podrás empezar a codear sin problemas luego de que aparezcan dos mensajes, el primero es "Servidor escuchando en el puerto 8080" (puerto configurado por defecto) y el segundo es "Base de mongo conectada".
+Podrás empezar a utilizarlo sin problemas luego de que aparezcan dos mensajes, el primero es "Servidor escuchando en el puerto 8080" (puerto configurado por defecto) y el segundo es "Base de mongo conectada".
 
-No hay problema si decides utilizar monitores de archivos en tiempo real como `nodemon` u otras alternativas equivalentes, pero ten en cuenta que los mensajes desaparecerán del html después de guardar cambios en el código. Pero no te preocupes, simplemente actualiza el sitio web y volverán a aparecer.
-
-Considera que se pueden enviar imágenes en este chat pero lamentablemente tuve que desactivar dicha opción ya que en el sitio gratuito donde está subido el proyecto no me es posible hacerlo. Si deseas volver a activar la opción, simplemente debes entrar al archivo ubicado en [`/src/public/js/chat.js`](/src/public/js/chat.js) y eliminar o comentar el `addEventListener` de tipo `click` que le puse al elemento con id igual a `inputFile`.
+Extra: considera que se pueden enviar imágenes en este chat pero lamentablemente tuve que desactivar dicha opción ya que en el sitio gratuito donde está subido el proyecto no me es posible hacerlo. Si deseas volver a activar la opción, simplemente debes entrar al archivo ubicado en [`/src/public/js/script.ts`](/src/public/js/script.ts) y eliminar o comentar el `addEventListener` de tipo `click` que le puse al elemento con id igual a `inputFile`.
 
 ## Construido con 🛠️
 
 * CSS
 * JavaScript
+* [TypeScript](https://www.typescriptlang.org/)
 * [NodeJs](https://nodejs.org/)
 * [ExpressJs](https://expressjs.com/)
 * [Socket.IO](https://socket.io/)
@@ -59,6 +70,7 @@ Considera que se pueden enviar imágenes en este chat pero lamentablemente tuve 
 * [multer](https://www.npmjs.com/package/multer)
 * [Sweet Alert 2](https://sweetalert2.github.io/)
 * [toastify-js](https://www.npmjs.com/package/toastify-js)
+* [copyfiles](https://www.npmjs.com/package/copyfiles)
 
 ## Autor ✒️
 
