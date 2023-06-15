@@ -20,7 +20,9 @@ const server: http.Server = app.listen(PORT, () => { // Escuchamos en el puerto 
 }); 
 server.on("error", error => console.log(`${error}`))
 
-const io = new Server(server) // io va a ser el servidor del socket. Va a estar conectado con nuestro servidor actual
+const io = new Server(server, { // io va a ser el servidor del socket. Va a estar conectado con nuestro servidor actual
+    maxHttpBufferSize: 1e6 // 1MB | Tamaño máximo de envío de datos con socket.io
+});
 
 server.on("error", error => console.log(error));
 
@@ -42,8 +44,8 @@ interface Menssage {
     hora: string,
     timestamp?: number,
     code?: string,
-    urlImagen: string,
-    id?: string
+    image: string,
+    _id?: string
 }
 
 let mensajes: Menssage[] = []; // Array que contiene información de cada mensaje
@@ -57,8 +59,8 @@ contenedorHistorialChats.getAll().then(response => mensajes = response) // Antes
 io.on("connection", async socket => { 
     socket.emit("logs", mensajes) // Envío al usuario el array de mensajes para que le muestre el historial
 
-    socket.on("message", async (data: Menssage) => { // Recibo los datos de los mensajes emitidos en chat.js
-        data.id = await contenedorHistorialChats.saveOne( data ) // Guardo en una colección de Mongo al objeto con los datos del mensaje que se envió 
+    socket.on("message", async (data: Menssage) => { // Recibo los datos de los mensajes emitidos en chat.js       
+        data._id = await contenedorHistorialChats.saveOne( data ) // Guardo en una colección de Mongo al objeto con los datos del mensaje que se envió 
         mensajes.push(data)
         io.emit("logs", mensajes) // Enviamos al io en vez de al socket para que el array llegue a todos los sockets (usuarios)
     })

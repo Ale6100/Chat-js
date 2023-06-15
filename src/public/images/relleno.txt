@@ -1,3 +1,0 @@
-Pongo este archivo en la carpeta "images" ya que git me la elimina si la dejo vacía
-
-Hay otras opciones pero preferí usar esta

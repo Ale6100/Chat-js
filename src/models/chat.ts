@@ -27,7 +27,7 @@ const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
         type: String,
         required: true
     },
-    urlImagen: {
+    image: {
         type: String,
         required: false 
     }

@@ -1,6 +1,6 @@
 # Sala de chat
 
-Bienvenido! Te invito a conocer mi primer chat grupal. Tengo muchas cosas en mente todavía, pero es lo suficientemente funcional como para que lo puedas ojear. 
+Bienvenido! Te invito a conocer mi primer chat grupal. Tengo muchas cosas en mente todavía, pero es lo suficientemente funcional como para que lo puedas usar. 
 
 Utiliza la versión más reciente subida a la web [aquí](https://chat-js-ale.onrender.com/)
 
@@ -54,8 +54,6 @@ npm start
 
 Podrás empezar a utilizarlo sin problemas luego de que aparezcan dos mensajes, el primero es "Servidor escuchando en el puerto 8080" (puerto configurado por defecto) y el segundo es "Base de mongo conectada".
 
-Extra: considera que se pueden enviar imágenes en este chat pero lamentablemente tuve que desactivar dicha opción ya que en el sitio gratuito donde está subido el proyecto no me es posible hacerlo. Si deseas volver a activar la opción, simplemente debes entrar al archivo ubicado en [`/src/public/js/script.ts`](/src/public/js/script.ts) y eliminar o comentar el `addEventListener` de tipo `click` que le puse al elemento con id igual a `inputFile`.
-
 ## Construido con 🛠️
 
 * CSS
@@ -67,7 +65,6 @@ Extra: considera que se pueden enviar imágenes en este chat pero lamentablement
 * [mongoose](https://mongoosejs.com/)
 * [EJS](https://ejs.co/)
 * [dotenv](https://www.npmjs.com/package/dotenv)
-* [multer](https://www.npmjs.com/package/multer)
 * [Sweet Alert 2](https://sweetalert2.github.io/)
 * [toastify-js](https://www.npmjs.com/package/toastify-js)
 * [copyfiles](https://www.npmjs.com/package/copyfiles)

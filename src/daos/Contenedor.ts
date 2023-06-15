@@ -17,7 +17,7 @@ interface Menssage {
     hora: string,
     timestamp?: number,
     code?: string,
-    urlImagen: string,
+    image: string,
     id?: string
 }
 
@@ -35,7 +35,7 @@ class Contenedor {
     }
 
     async getAll() { // Devuelve un array con todos los documentos presentes en la colección
-        return await this.model.find({})
+        return await this.model.find({}) as Menssage[]
     }
 
     async saveOne(document: Menssage) { // Recibe un documento, lo guarda en la colección, le coloca un id único y devuelve ese id

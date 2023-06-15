@@ -1,8 +1,3 @@
-// @ts-ignore
-//@ts-nocheck
-// @ts-nocheck
-// @ts-ignore-next-line
-
 declare const io: any; // No quise hacer esto, pero no poseo el tipado de estas funciones ya que las importo mediante link CDN
 declare const Swal: any;
 declare const Toastify: any;
@@ -33,24 +28,18 @@ Swal.fire({ // Muestra una alerta que te pide tu nombre
     socket.emit("autenticado", user)
 })
 
-document.getElementById("inputFile")?.addEventListener("click", (e) => { //! Eliminar si se desea enviar imágenes
-    e.preventDefault()
-    Toastify({
-        text: "Se pueden enviar imágenes en este chat, pero lamentablemente tuve que desactivar esta opción ya que en el sitio gratuito donde está subido el proyecto no me es posible hacerlo. Haz click aquí si deseas tener activada la opción siguiendo los pasos a seguir que anoté para que puedas crear tu propio chat",
-        duration: 10000,
-        destination: "https://github.com/Ale6100/Chat-js.git#sala-de-chat",
-        newWindow: true,
-        close: false,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-        style: {
-            background: "linear-gradient(to right, #00b09b, rgb(125, 125, 61))",
-            border: "2px solid black",
-            borderRadius: "2px"
+const convertToBase64 = async (file: File) => { // Convierte una imagen a formato base64. Fuente: https://www.youtube.com/watch?v=pfxd7L1kzio&ab_channel=DailyTuition
+    return new Promise((res, rej) => {
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(file);
+        fileReader.onload = () => {
+            res(fileReader.result)
         }
-    }).showToast();
-})
+        fileReader.onerror = (error) => {
+            rej(error)
+        }
+    })
+}
 
 const form = document.getElementById("form-chat") as HTMLFormElement | null
 
@@ -65,20 +54,41 @@ form?.addEventListener("submit", async e => {
     const obj: ObjInt = {}
     formData.forEach((value, key) => obj[key] = value)
 
+    const imageSize = (obj.imageForm as { size: number } ).size;
+
+    if (imageSize >= 1000000) { // Si la imagen supera los 1MB, rechaza el mensaje (técnicamente debería considera el tamaño de la imagen más los otros datos, pero como pesan muy poco voy a hacer la vista gorda aunque no sea correcto. En el futuro cambiaré esto)
+        return Toastify({
+            text: "Por ahora el tamaño de la imagen no puede exceder 1MB",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            stopOnFocus: true,
+            style: {
+                background: "linear-gradient(to right, #00b09b, rgb(125, 125, 61))",
+                border: "2px solid black",
+                borderRadius: "2px"
+            }
+        }).showToast();
+    }
+
     const mensaje = (obj.mensaje as string).trim();
-    const tamanioImagen = (obj.image as { size: number }).size
 
-    if (mensaje.length > 0 || tamanioImagen > 0) { // Se ejecuta si el mensaje es un string no vacío o si se quiere enviar una imagen
-        const res = await fetch("/api/guardarImagen", { // Enviamos a esta ruta el formData. Se encargará de guardar una imagen si el usuario así lo quiso
-            method: "POST",
-            body: formData // Enviamos los datos al body. Multer se va a encargar de procesarlos
-        }).then(res => res.json())
+    const file = obj.imageForm as File | undefined
+    let fileBase64 = ""
+    
+    if (file) {
+        fileBase64 = await convertToBase64(file) as string
+        if (fileBase64 !== "data:") {
+            obj.image = fileBase64
+        }
+    }
 
-        const urlImagen = res.imageSent ? res.payload : undefined // Si el usuario envió una imagen, se envía junto con los demás datos
-        
+    if (mensaje.length > 0 || obj.image) { // Se ejecuta si el mensaje es un string no vacío o si se quiere enviar una imagen       
         const fecha = new Date().toLocaleDateString() // Fecha y hora en la que se mandó el mensaje
         const hora = new Date().toLocaleTimeString()
-        socket.emit("message", { user, message: mensaje, fecha, hora, urlImagen: urlImagen }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen en caso de que haya enviado
+        
+        socket.emit("message", { user, message: mensaje, fecha, hora, image: obj.image }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen en caso de que haya enviado
     }
 
     form.reset()
@@ -93,8 +103,8 @@ interface Menssage {
     hora: string,
     timestamp: number,
     code: string,
-    urlImagen: string,
-    id?: string
+    image: string,
+    _id?: string
 }
 
 socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje y cada vez que se elimina uno
@@ -108,7 +118,7 @@ socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada 
         <div class="mensajeIndividual">
             <div class="divMensajeImagen">
                 ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
-                ${element.urlImagen ? `<img src="${element.urlImagen}" alt="Imagen enviada">` : ""}
+                ${element.image ? `<img src="${element.image}" alt="Imagen enviada">` : ""}
             </div>
             <div>
                 <p class="pHora">${element.hora}</p>
@@ -247,7 +257,7 @@ socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada 
                 }).then( async (result: { value: string }) => {
                     const res = await fetch("/api/eliminarMensaje", {
                         method: "DELETE",
-                        body: JSON.stringify({ id: element.id }),
+                        body: JSON.stringify({ id: element._id }),
                         headers: {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${result.value}`
