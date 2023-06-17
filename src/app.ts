@@ -45,7 +45,12 @@ interface Menssage {
     timestamp?: number,
     code?: string,
     image: string,
-    _id?: string
+    _id?: string,
+    respuestaGuardada: {
+        authorCapturado: string,
+        mensajeCapturado: string,
+        imagenCapturada: string
+    }
 }
 
 let mensajes: Menssage[] = []; // Array que contiene información de cada mensaje

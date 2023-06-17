@@ -30,6 +30,11 @@ const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
     image: {
         type: String,
         required: false 
+    },
+
+    respuestaGuardada: {
+        type: Object,
+        required: false
     }
 });
 

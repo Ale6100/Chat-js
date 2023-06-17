@@ -41,6 +41,8 @@ const convertToBase64 = async (file: File) => { // Convierte una imagen a format
     })
 }
 
+const respuesta = document.querySelector(".contenedor-chat__respuesta")
+
 const form = document.getElementById("form-chat") as HTMLFormElement | null
 
 form?.addEventListener("submit", async e => {
@@ -88,13 +90,40 @@ form?.addEventListener("submit", async e => {
         const fecha = new Date().toLocaleDateString() // Fecha y hora en la que se mandó el mensaje
         const hora = new Date().toLocaleTimeString()
         
-        socket.emit("message", { user, message: mensaje, fecha, hora, image: obj.image }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen en caso de que haya enviado
+        const authorCapturado = respuesta?.children[0]?.children[0].textContent
+        
+        const contenedorMensajeCitado = respuesta?.children[0]?.children[1]
+
+        let mensajeCapturado, imagenCapturada
+
+        const primerHijo = contenedorMensajeCitado?.children[0]
+        const segundoHijo = contenedorMensajeCitado?.children[1]
+
+        if (primerHijo instanceof HTMLImageElement) { // La posición de los "hijos" cambiará dependiendo de si el mensaje citado tiene mensaje / imagen / mensaje+imagen
+            mensajeCapturado = ""
+            imagenCapturada = primerHijo?.outerHTML
+        } else {
+            mensajeCapturado = primerHijo?.textContent
+            imagenCapturada = segundoHijo?.outerHTML
+        }
+
+        const respuestaGuardada = {
+            authorCapturado: authorCapturado,
+            mensajeCapturado: mensajeCapturado,
+            imagenCapturada: imagenCapturada
+        }
+        
+        respuesta?.classList.add('hidden');
+        respuesta?.classList.remove("seleccionado")
+        if (respuesta) respuesta.innerHTML = ""
+
+        socket.emit("message", { user, message: mensaje, fecha, hora, image: obj.image, respuestaGuardada }) // Emito un evento personalizado "message". Envío el usuario, el mensaje, la fecha, la hora y la url de la imagen en caso de que haya enviado
     }
 
     form.reset()
 })
 
-const logsPanel = document.getElementById("logsPanel")
+const logsPanel = document.querySelector(".logsPanel")
 
 interface Menssage {
     user: string,
@@ -104,7 +133,12 @@ interface Menssage {
     timestamp: number,
     code: string,
     image: string,
-    _id?: string
+    _id?: string,
+    respuestaGuardada: {
+        authorCapturado: string,
+        mensajeCapturado: string,
+        imagenCapturada: string
+    }
 }
 
 socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada vez que se envía un nuevo mensaje y cada vez que se elimina uno
@@ -114,15 +148,43 @@ socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada 
 
     data.forEach((element, index) => { // Mapeo los mensajes. Considerar que es un forEach raro debido a que se requiere ordenar de una manera especial los mensajes
         // Estructura de cada mensaje
+        const respuestaGuardada = element.respuestaGuardada
+        const authorCapturado = respuestaGuardada?.authorCapturado ?? ""
+        const mensajeCapturado = respuestaGuardada?.mensajeCapturado ?? ""
+        const imagenCapturada = respuestaGuardada?.imagenCapturada ?? ""
+        
+        let cita = ""
+        if (authorCapturado) {
+            cita = `
+            <div class="divRespuesta divCitado">
+                <p>${authorCapturado}</p>
+                <div class="divRespuesta__divCapturada">
+                    <p>${mensajeCapturado}</p>
+                    ${imagenCapturada}
+                </div>
+            </div>
+            `
+        }
+
+
         const mensaje = `
         <div class="mensajeIndividual">
-            <div class="divMensajeImagen">
-                ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
-                ${element.image ? `<img src="${element.image}" alt="Imagen enviada">` : ""}
-            </div>
-            <div>
-                <p class="pHora">${element.hora}</p>
-                <button id="btn-delete-${index}" class="pBasura">🗑️</button>
+            ${cita}
+            <div class="mensajeIndividual__div">
+                <div class="divMensajeImagen msg-${index}">
+                    ${element.message ? `<p class="pMensaje">${element.message}</p>` : ""}
+                    ${element.image ? `<img src="${element.image}" alt="Imagen enviada">` : ""}
+                </div>
+                <div>
+                    <p class="pHora">${element.hora}</p>
+                    <button id="btn-delete-${index}" class="pBasura">🗑️</button>
+                    <div class="divOptions">
+                        <button id="btn-option-${index}" class="pOption"><svg viewBox="0 0 18 18" height="18" width="18" preserveAspectRatio="xMidYMid meet" class="" version="1.1" x="0px" y="0px" enable-background="new 0 0 18 18" xml:space="preserve"><path fill="currentColor" d="M3.3,4.6L9,10.3l5.7-5.7l1.6,1.6L9,13.4L1.7,6.2L3.3,4.6z"></path></svg></button>
+                        <div>
+                            <p>Responder</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         `
@@ -240,6 +302,7 @@ socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada 
                 etiqueta.classList.add("flex-end")                
             }
         })
+
         logsPanel.scrollTop = logsPanel.scrollHeight // Hago que la barra siempre vaya abajo de todo cuando enviamos un mensaje
     })
 
@@ -293,6 +356,66 @@ socket.on("logs", (data: Menssage[]) => { // Muestro los mensajes pasados, cada 
                     timer: 4000,
                     title: "Por el momento sólo el administrador puede eliminar mensajes",
                     icon: "info"
+                })
+            }
+        })
+
+        const buttonOptions = document.getElementById(`btn-option-${index}`)        
+
+        buttonOptions?.addEventListener("click", () => { // Se encarga de definir la función de los botones del panel desplegable que hay en cada mensaje. Tengo pendiente explicar mejor esto
+            const options = buttonOptions.nextElementSibling
+
+            const author = buttonOptions?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.children[0].textContent
+
+            if (options instanceof HTMLDivElement) {
+                const escala = options.style.getPropertyValue("transform")
+
+                if (escala === "scale(1)") {
+                    options.style.setProperty("transform", "scale(0)")
+                    options.style.setProperty("opacity", "0")
+                } else {
+                    options.style.setProperty("transform", "scale(1)")
+                    options.style.setProperty("opacity", "1")
+                }
+          
+                const pResponder = options.children[0]
+
+                pResponder.addEventListener("click", () => {
+                    const contMensajeCapturado = document.querySelector(`.msg-${index}`)
+                    const mensajeCapturado = contMensajeCapturado?.children[0]?.outerHTML ?? ""
+                    const imagenCapturada = contMensajeCapturado?.children[1]?.outerHTML ?? ""
+                    
+                    if (respuesta instanceof HTMLDivElement && typeof mensajeCapturado === "string" && typeof imagenCapturada === "string") {
+                        const nuevaRespuesta = `
+                        <div class="divRespuesta">
+                            <p>${author}</p>
+                            <div class="divRespuesta__div">
+                                ${mensajeCapturado}
+                                ${imagenCapturada}
+                            </div>
+                            <span class="spanCerrar"><svg viewBox="0 0 24 24" height="24" width="24" preserveAspectRatio="xMidYMid meet" class="" fill="currentColor" enable-background="new 0 0 24 24" xml:space="preserve"><path d="M19.6004 17.2L14.3004 11.9L19.6004 6.60005L17.8004 4.80005L12.5004 10.2L7.20039 4.90005L5.40039 6.60005L10.7004 11.9L5.40039 17.2L7.20039 19L12.5004 13.7L17.8004 19L19.6004 17.2Z"></path></svg></span>
+                        </div>
+                        `
+                        
+                        if (respuesta.classList.contains("seleccionado")) {
+                            if (respuesta.innerHTML === nuevaRespuesta) {
+                                respuesta.classList.add('hidden');
+                                respuesta.classList.remove("seleccionado")
+                            } else {
+                                respuesta.innerHTML = nuevaRespuesta
+                            }
+                                                    
+                        } else {
+                            respuesta.classList.remove('hidden');
+                            respuesta.classList.add("seleccionado")
+                            respuesta.innerHTML = nuevaRespuesta
+                        }
+
+                        document.querySelector(".spanCerrar")?.addEventListener("click", () => {
+                            respuesta.classList.add('hidden');
+                            respuesta.classList.remove("seleccionado")
+                        })
+                    }
                 })
             }
         })

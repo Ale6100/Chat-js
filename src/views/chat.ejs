@@ -23,25 +23,29 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <main>
-        <section>
-            <h1>Sala de chat</h1>
+        <h1>Sala de chat</h1>
 
-            <div class="contenedor-chat">
-                <div id="logsPanel">
+        <div class="contenedor-chat">
+            <div class="contenedor-chat__divLogs">
+                <div class="logsPanel">
                     <p class='chatPlaceholder'>Aquí se anotará el historial de chats</p>
                 </div>
-                
-                <form id="form-chat">
-                    <input type="file" name="imageForm" accept="image/*">
-                    <div>
-                        <input type="text" name="mensaje" placeholder="Escribe tu mensaje..." autocomplete="off">
-                        <button type="submit">
-                            <img src="https://img.icons8.com/color/48/null/filled-sent.png"/>
-                        </button>
-                    </div>
-                </form>
+
+                <div class="contenedor-chat__respuesta hidden">
+                    ola k tal ola k tal ola k tal ola k tal ola k tal ola k talola k talola k talola k talola k tal ola k tal ola k talola k talola k tal
+                </div>
             </div>
-        </section>
+            
+            <form id="form-chat">
+                <input type="file" name="imageForm" accept="image/*">
+                <div class="form-chat__div">
+                    <input type="text" name="mensaje" placeholder="Escribe tu mensaje..." autocomplete="off">
+                    <button type="submit">
+                        <img src="https://img.icons8.com/color/48/null/filled-sent.png"/>
+                    </button>
+                </div>
+            </form>
+        </div>
         <p id="creditos">Desarrollado por <a href="https://www.linkedin.com/in/alejandro-portaluppi/" target="_blank" rel="noopener noreferrer">Alejandro P</a></p>
     </main>
     

@@ -18,7 +18,12 @@ interface Menssage {
     timestamp?: number,
     code?: string,
     image: string,
-    id?: string
+    id?: string,
+    respuestaGuardada: {
+        authorCapturado: string,
+        mensajeCapturado: string,
+        imagenCapturada: string
+    }
 }
 
 // Esta clase crea un objeto que manipula una colección en MongoDB con documentos dentro. Dichos documentos pueden ser agregados, consultados, modificados y eliminados
