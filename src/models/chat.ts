@@ -23,15 +23,10 @@ const schema = new mongoose.Schema({ // Estructura que tendrá cada documento
         type: Number,
         required: true
     },
-    code: {
-        type: String,
-        required: true
-    },
     image: {
         type: String,
         required: false 
     },
-
     respuestaGuardada: {
         type: Object,
         required: false

@@ -7,18 +7,19 @@ const contenedorHistorialChats = new Contenedor("historialChats")
 const eliminarMensaje = async (req: Request, res: Response) => { // En /api/eliminarMensaje con el método DELETE eliminamos un mensaje según su id pasado por el body, y devolvemos el nuevo historial modificado
     try {
         const { id } = req.body
-
-        const token = req.headers.authorization?.split(" ")[0] === "Bearer" && req.headers.authorization?.split(" ")[1];
-    
-        if (config.token.deleteMessage === token) {
+        const { password } = req.query
+  
+        if (config.token.deleteMessage === password) {
             await contenedorHistorialChats.deleteOne(id)
             const data = await contenedorHistorialChats.getAll()
             
             res.status(200).send({ status: "success", message: "Mensaje eliminado", data })
         } else {
+            req.logger.error("Contraseña incorrecta")
             res.status(403).send({ status: "error", message: "Contraseña incorrecta" })
         }
     } catch (error) {
+        req.logger.fatal(`${error}`)
         res.status(500).send({ status: "error", error })
     }
 }

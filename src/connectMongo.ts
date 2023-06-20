@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import config from "./config/config.js";
+import logger from './utils/logger.js';
 
 const conectarBaseDeDatos = async () => {
     if (config.mongo.url) {
@@ -7,15 +8,14 @@ const conectarBaseDeDatos = async () => {
             await mongoose.connect(config.mongo.url);
 
             mongoose.connection.on('error', error => {
-                console.log(error);
+                logger.fatal(error);
             });
 
-            console.log(`Base de mongo conectada`);
+            logger.info(`Base de mongo conectada`);
         } catch (error) {
-            console.log(error);
+            logger.fatal(error);
         }
     }
 }
 
 conectarBaseDeDatos();
-  
