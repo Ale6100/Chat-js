@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import config from "../config/config.js"
 
 const validateToken = (req: Request, res: Response, next: NextFunction) => {    
+    if (req.path === "/" && (req.method === "GET" || req.method === "HEAD")) return next() // Si la petición es a la ruta principal, permito el acceso siempre y cuando sea con el método GET o HEAD
+    
     const token = req.headers.authorization?.split(" ")[0] === "Bearer" && req.headers.authorization?.split(" ")[1]; // Token enviado en el encabezado de la petición
 
     if (token === config.token.gral) {
