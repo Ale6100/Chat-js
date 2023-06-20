@@ -11,6 +11,7 @@ import corsOptions from "./middlewares/cors.js";
 import logger from "./utils/logger.js";
 import chatRouter from "./routes/chat.routes.js";
 import addLogger from "./middlewares/addLogger.js";
+import validateToken from "./middlewares/validateToken.js";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use(express.urlencoded({ extended: true })); // Habilita poder procesar y pa
 
 app.use(cors(corsOptions(whitelist)))
 app.use(addLogger)
+app.use(validateToken)
 
 app.use("/api", chatRouter)
 app.get("/", (_req: Request, res: Response) => {
