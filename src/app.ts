@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import __dirname from "./utils.js";
 import { Server } from "socket.io";
 import http from "http";
@@ -30,6 +30,9 @@ if (config.site.urlfrontend) whitelist.push(config.site.urlfrontend)
 
 if (whitelist.length === 0) logger.fatal("Debes colocar al menos una url frontend en las variables de entorno!")
 
+app.set("views", `${__dirname}/views`); // Ubicación de las vistas
+app.set("view engine", "ejs"); // Configuramos EJS como el motor de visualización de nuestra app
+
 app.use(express.json()); // Especifica que podemos recibir json
 app.use(express.urlencoded({ extended: true })); // Habilita poder procesar y parsear datos más complejos en la url
 
@@ -37,6 +40,9 @@ app.use(cors(corsOptions(whitelist)))
 app.use(addLogger)
 
 app.use("/api", chatRouter)
+app.get("/", (_req: Request, res: Response) => {
+    res.render("index.ejs", { urlFront: config.site.urlfrontend })
+})
 
 const io = new Server(server, { // io va a ser el servidor del socket. Va a estar conectado con nuestro servidor actual
     maxHttpBufferSize: 1e6, // 1MB | Tamaño máximo de envío de datos con socket.io

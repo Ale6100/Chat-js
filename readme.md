@@ -43,10 +43,12 @@ TOKEN_GRAL = X # Token arbitrario personal, necesario para acceder a los endpoin
 La carpeta de trabajo es [src](/src) y su archivo principal se ubica en [src/app.ts](src/app.ts). Realiza las modificaciones que desees y, cuando estés listo, ejecuta el comando
 
 ```
-tsc
+npm run tsc-copy
 ```
 
-Este comando compilará todos los archivos TypeScript y los guardará en la carpeta `dist`. Recomiendo eliminar o vaciar la carpeta antes de ejecutar dicho comando.
+Este comando se encarga de crear una carpeta dist lista para su uso: primero compilará todos los archivos TypeScript y los guardará en dist, luego copiará todos los archivos restantes de src a dist, manteniendo así la estructura de organización.
+
+Recomiendo eliminar o vaciar la carpeta dist antes de ejecutar dicho comando.
 
 ## Despliegue 📦
 
@@ -62,6 +64,7 @@ Podrás empezar a utilizarlo sin problemas luego de que aparezcan dos mensajes, 
 
 ## Construido con 🛠️
 
+* JavaScript
 * [TypeScript](https://www.typescriptlang.org/)
 * [NodeJs](https://nodejs.org/)
 * [ExpressJs](https://expressjs.com/)
@@ -71,6 +74,8 @@ Podrás empezar a utilizarlo sin problemas luego de que aparezcan dos mensajes, 
 * [dotenv](https://www.npmjs.com/package/dotenv)
 * [winston](https://www.npmjs.com/package/winston)
 * [cors](https://www.npmjs.com/package/cors)
+* [EJS](https://ejs.co/)
+* [copyfiles](https://www.npmjs.com/package/copyfiles)
 
 ## Autor ✒️
 
